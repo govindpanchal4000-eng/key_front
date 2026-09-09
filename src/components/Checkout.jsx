@@ -1,48 +1,108 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Checkout({ cart }) {
+export default function Checkout({ cart, setCart }) {
   const navigate = useNavigate();
 
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    address: "",
+  });
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) =>
+      sum + Number(item.price) * (item.quantity || 1),
     0
   );
 
-  // Cart empty
-  if (cart.length === 0) {
-    return (
-      <section className="min-h-screen bg-gray-100 dark:bg-slate-950 pt-28 px-4">
-        <div className="max-w-xl mx-auto text-center py-20">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Your cart is empty 🛒
-          </h1>
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
 
-          <button
-            onClick={() => navigate("/all")}
-            className="mt-6 bg-gray-800 text-white px-6 py-3 rounded-xl"
-          >
-            Continue Shopping
-          </button>
-        </div>
-      </section>
+    setError("");
+  };
+
+  const placeOrder = () => {
+    // Check customer details
+    if (
+      !form.name.trim() ||
+      !form.phone.trim() ||
+      !form.address.trim()
+    ) {
+      setError("Please fill in all details before placing the order.");
+      return;
+    }
+
+    // Get existing orders
+    const oldOrders =
+      JSON.parse(localStorage.getItem("orders")) || [];
+
+    // Create order
+    const newOrder = {
+      id: Date.now(),
+      customer: {
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
+      },
+      items: cart,
+      total: total,
+      status: "Placed",
+      date: new Date().toLocaleString(),
+    };
+
+    // Save order
+    localStorage.setItem(
+      "orders",
+      JSON.stringify([...oldOrders, newOrder])
     );
-  }
+
+    // Show success message
+    setSuccess(
+      `Order placed successfully! Order #${newOrder.id}`
+    );
+
+    // Clear cart
+    setCart([]);
+
+    // Go to Orders page after 2 seconds
+    setTimeout(() => {
+      navigate("/orders");
+    }, 2000);
+  };
 
   return (
     <section className="min-h-screen bg-gray-100 dark:bg-slate-950 pt-28 pb-10 px-4">
-      <div className="max-w-5xl mx-auto">
 
-        <h1 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-white mb-8">
+      <div className="max-w-4xl mx-auto">
+
+        <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
           Checkout
         </h1>
+
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 bg-green-100 dark:bg-green-900/30 border border-green-400 text-green-700 dark:text-green-400 rounded-xl p-4 text-center font-semibold">
+            ✅ {success}
+            <br />
+            <span className="text-sm font-normal">
+              Your order has been added to the order list.
+            </span>
+          </div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-6">
 
           {/* Customer Details */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-md">
 
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-5">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5">
               Customer Details
             </h2>
 
@@ -50,106 +110,92 @@ export default function Checkout({ cart }) {
 
               <input
                 type="text"
+                name="name"
                 placeholder="Full Name"
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white outline-none"
-              />
-
-              <input
-                type="email"
-                placeholder="Email Address"
+                value={form.name}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white outline-none"
               />
 
               <input
                 type="tel"
-                placeholder="Mobile Number"
+                name="phone"
+                placeholder="Phone Number"
+                value={form.phone}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white outline-none"
               />
 
               <textarea
+                name="address"
                 placeholder="Delivery Address"
                 rows="4"
+                value={form.address}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white outline-none"
               />
 
-            </div>
+              {/* Error */}
+              {error && (
+                <p className="text-red-500 text-sm font-medium">
+                  ⚠️ {error}
+                </p>
+              )}
 
+              <button
+                onClick={placeOrder}
+                disabled={success}
+                className="w-full bg-gray-800 hover:bg-gray-600 disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold transition"
+              >
+                Place Order
+              </button>
+
+            </div>
           </div>
 
           {/* Order Summary */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow h-fit">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-md h-fit">
 
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-5">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5">
               Order Summary
             </h2>
 
-            <div className="space-y-4">
+            {cart.map((item) => (
+              <div
+                key={item.id}
+                className="flex justify-between gap-3 border-b border-gray-200 dark:border-gray-700 py-3"
+              >
+                <div>
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    {item.name}
+                  </p>
 
-              {cart.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <div className="flex items-center gap-3">
-
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-14 h-14 object-cover rounded-lg"
-                    />
-
-                    <div>
-                      <p className="font-semibold text-gray-900 dark:text-white text-sm">
-                        {item.name}
-                      </p>
-
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">
-                        Qty: {item.quantity}
-                      </p>
-                    </div>
-
-                  </div>
-
-                  <p className="font-bold text-gray-900 dark:text-white">
-                    ₹{item.price * item.quantity}
+                  <p className="text-sm text-gray-500">
+                    Qty: {item.quantity || 1}
                   </p>
                 </div>
-              ))}
 
-            </div>
+                <p className="font-bold text-gray-900 dark:text-white">
+                  ₹
+                  {Number(item.price) *
+                    (item.quantity || 1)}
+                </p>
+              </div>
+            ))}
 
-            <div className="border-t dark:border-gray-700 mt-5 pt-5 flex justify-between">
-
-              <span className="text-xl font-semibold text-gray-900 dark:text-white">
+            <div className="flex justify-between mt-6">
+              <span className="text-lg font-bold text-gray-900 dark:text-white">
                 Total
               </span>
 
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
                 ₹{total}
               </span>
-
             </div>
-
-            <button
-              onClick={() => alert("Order placed successfully! 🎉")}
-              className="
-                w-full mt-6
-                bg-gray-800
-                hover:bg-gray-600
-                text-white
-                py-3
-                rounded-xl
-                font-semibold
-                transition
-              "
-            >
-              Place Order
-            </button>
 
           </div>
 
         </div>
-
       </div>
     </section>
   );

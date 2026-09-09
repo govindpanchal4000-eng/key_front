@@ -14,12 +14,12 @@ import Login from "./components/Login";
 import Search from "./components/Search";
 import Wishlist from "./components/Whistlist";
 import Checkout from "./components/Checkout";
-
+import Orders from "./components/Order";
 export default function App() {
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [wishlist, setWishlist] = useState([]);
-
+const [isLoggedIn, setIsLoggedIn] = useState(false);
   const toggleWishlist = (product) => {
   setWishlist((prevWishlist) => {
     const exists = prevWishlist.some(
@@ -155,6 +155,7 @@ export default function App() {
         <Route
           path="/login"
           element={<Login />}
+               setIsLoggedIn={setIsLoggedIn}
         />
 
         {/* SEARCH */}
@@ -182,7 +183,21 @@ export default function App() {
 />
 <Route
   path="/checkout"
-  element={<Checkout cart={cart} />}
+  element={
+    isLoggedIn ? (
+      <Checkout
+        cart={cart}
+        setCart={setCart}
+      />
+    ) : (
+      <Login
+        setIsLoggedIn={setIsLoggedIn}
+      />
+    )
+  }
+/>
+<Route
+path="/Order" element={<order/>}
 />
 
       </Routes>

@@ -1,80 +1,105 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
-export default function Login() {
-    const [showPassword, setShowPassword] = useState(false);
+export default function Login({ setIsLoggedIn }) {
+  const [showPassword, setShowPassword] = useState(false);
 
-    const handleLogin = (e) => {
-        e.preventDefault();
+  const navigate = useNavigate();
 
-        console.log("Login submitted");
-    };
+  const handleLogin = (e) => {
+    e.preventDefault();
 
-    return (
-        <section className="min-h-screen bg-gray-100 dark:bg-slate-950 pt-28 px-4 pb-10 flex items-center justify-center">
+    // Login successful
+    setIsLoggedIn(true);
 
-            <div className="w-full max-w-md">
+    // Go to checkout
+    navigate("/checkout");
+  };
 
-                <div className=" bg-white dark:bg-slate-900  rounded-2xl   shadow-xl p-6 sm:p-8    border border-gray-200 dark:border-slate-800   ">
-                    {/* Heading */}
-                    <div className="text-center mb-7">
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                            Welcome Back 👋
-                        </h1>
+  return (
+    <section className="min-h-screen bg-gray-100 dark:bg-slate-950 pt-28 px-4 pb-10 flex items-center justify-center">
 
-                        <p className="mt-2 text-gray-500 dark:text-gray-400">
-                            Login to your account
-                        </p>
-                    </div>
+      <div className="w-full max-w-md">
 
-                    <form onSubmit={handleLogin} className="space-y-5">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200 dark:border-slate-800">
 
-                        {/* Email */}
-                        <div>
-                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Email
-                            </label>
+          {/* Heading */}
+          <div className="text-center mb-7">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Welcome Back 👋
+            </h1>
 
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                required
-                                className=" w-full px-4 py-3 rounded-xl  border border-gray-300 dark:border-slate-700  bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white  outline-none focus:ring-2 focus:ring-gray-500" />
-                        </div>
+            <p className="mt-2 text-gray-500 dark:text-gray-400">
+              Login to your account
+            </p>
+          </div>
 
-                        {/* Password */}
-                        <div>
-                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Password
-                            </label>
+          <form onSubmit={handleLogin} className="space-y-5">
 
-                            <div className="relative">
+            {/* Email */}
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email
+              </label>
 
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Enter your password" required className="  w-full px-4 py-3 pr-20 rounded-xl  border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800  text-gray-900 dark:text-white  outline-none focus:ring-2 focus:ring-gray-500 " />
+              <input
+                type="email"
+                placeholder="Enter your email"
+                required
+                className="
+                  w-full px-4 py-3 rounded-xl
+                  border border-gray-300 dark:border-slate-700
+                  bg-gray-50 dark:bg-slate-800
+                  text-gray-900 dark:text-white
+                  outline-none
+                  focus:ring-2 focus:ring-gray-500
+                "
+              />
+            </div>
 
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="
+            {/* Password */}
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Password
+              </label>
+
+              <div className="relative">
+
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  required
+                  className="
+                    w-full px-4 py-3 pr-20 rounded-xl
+                    border border-gray-300 dark:border-slate-700
+                    bg-gray-50 dark:bg-slate-800
+                    text-gray-900 dark:text-white
+                    outline-none
+                    focus:ring-2 focus:ring-gray-500
+                  "
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="
                     absolute right-3 top-1/2
                     -translate-y-1/2
                     text-sm text-gray-500
                     hover:text-gray-900
                     dark:hover:text-white
                   "
-                                >
-                                    {showPassword ? "Hide" : "Show"}
-                                </button>
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
 
-                            </div>
-                        </div>
+              </div>
+            </div>
 
-                        {/* Login */}
-                        <button
-                            type="submit"
-                            className="
+            {/* Login */}
+            <button
+              type="submit"
+              className="
                 w-full
                 bg-gray-800
                 hover:bg-gray-600
@@ -84,29 +109,29 @@ export default function Login() {
                 font-semibold
                 transition
               "
-                        >
-                            Login
-                        </button>
+            >
+              Login
+            </button>
 
-                    </form>
+          </form>
 
-                    {/* Signup */}
-                    <p className="text-center mt-6 text-gray-500 dark:text-gray-400">
-                        Don't have an account?{" "}
+          {/* Signup */}
+          <p className="text-center mt-6 text-gray-500 dark:text-gray-400">
+            Don't have an account?{" "}
 
-                        <NavLink
-                            to="/signup"
-                            className="font-semibold text-gray-900 dark:text-white hover:underline"
-                        >
-                            Sign Up
-                        </NavLink>
+            <NavLink
+              to="/signup"
+              className="font-semibold text-gray-900 dark:text-white hover:underline"
+            >
+              Sign Up
+            </NavLink>
 
-                    </p>
+          </p>
 
-                </div>
+        </div>
 
-            </div>
+      </div>
 
-        </section>
-    );
+    </section>
+  );
 }
